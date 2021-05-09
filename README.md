@@ -1,6 +1,6 @@
 # InventoryApp
 
-App that uses sqlite database to store the products. 
+An app that uses SQLite database to store the products. 
 
 # Topics covered
 
