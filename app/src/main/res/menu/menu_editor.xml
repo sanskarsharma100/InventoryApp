@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".EditorActivity">
+
+    <item
+        android:id="@+id/save_item"
+        android:title="@string/save_appbar"
+        android:icon="@drawable/ic_done"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/delete_one_product"
+        android:title="@string/delete_appbar"
+        app:showAsAction="collapseActionView"/>
+
+    <item
+        android:id="@+id/order_more_product"
+        android:title="@string/order_more"
+        app:showAsAction="collapseActionView"/>
+
+</menu>
