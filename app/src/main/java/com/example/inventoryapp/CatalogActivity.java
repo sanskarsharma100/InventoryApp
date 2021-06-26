@@ -1,85 +1,80 @@
 package com.example.inventoryapp;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
-import android.content.ContentUris;
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.CursorLoader;
-import androidx.loader.content.Loader;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.inventoryapp.Data.ProductContract.ProductEntry;
+import com.example.inventoryapp.Data.ProductEntry;
+import com.example.inventoryapp.databinding.ActivityCatalogBinding;
+import com.example.inventoryapp.viewModel.ProductViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.List;
 
 /**
  * Displays list of products that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class CatalogActivity extends AppCompatActivity implements RecyclerViewAdapter.ItemListClickListener {
 
     public static final String LOG_TAG = CatalogActivity.class.getSimpleName();
 
-    private static final int PRODUCT_LOADER = 0;
-    ProductCursorAdapter mCursorAdapter;
+    private RecyclerViewAdapter adapter;
+    private List<ProductEntry> productList;
+    private ProductViewModel productViewModel;
+    private ActivityCatalogBinding catalogBinding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_catalog);
-
-        //Floating button to open EditorActivity
-        FloatingActionButton fb = (FloatingActionButton) findViewById(R.id.floating_button);
-        fb.setOnClickListener(new View.OnClickListener() {
+        catalogBinding = DataBindingUtil.setContentView(this,R.layout.activity_catalog);
+        catalogBinding.floatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,Constant.ADD_REQUEST_CODE);
             }
         });
 
-        // Find the ListView which will be populated with the product data
-        ListView productListView = (ListView) findViewById(R.id.list);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        catalogBinding.recyclerView.setLayoutManager(layoutManager);
+        adapter = new RecyclerViewAdapter(this);
+        catalogBinding.recyclerView.setAdapter(adapter);
+        LoadProductList();
+    }
 
-        // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
-        View emptyView = findViewById(R.id.empty_view);
-        productListView.setEmptyView(emptyView);
-
-        // Setup an Adapter to create a list item for each row of product data in the Cursor.
-        // There is no product data yest (until the loader finishes) so pass in null for the Cursor
-        mCursorAdapter = new ProductCursorAdapter(this, null);
-        productListView.setAdapter(mCursorAdapter);
-
-        // Setup item click listener
-        productListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    private void LoadProductList() {
+        productViewModel =
+                new ViewModelProvider(this,
+                        ViewModelProvider.AndroidViewModelFactory.getInstance(this.getApplication()))
+                        .get(ProductViewModel.class);
+        productViewModel.getProductList().observe(this, new Observer<List<ProductEntry>>() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // Intent for going EditorActivity
-                Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
-                // From the content URI that represents the specific product that was clicked on,
-                // by appending "id"
-                Uri currentProductUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
-                // Set the URI on the data field of the intent
-                intent.setData(currentProductUri);
-                // Launch the EditorActivity to display the data for the current product
-                startActivity(intent);
+            public void onChanged(List<ProductEntry> productEntries) {
+                if(productEntries!=null) {
+                    productList = productEntries;
+                    adapter.setData(productEntries);
+                }
             }
         });
-        // Kick off the loader
-        getSupportLoaderManager().initLoader(PRODUCT_LOADER, null, this);
     }
 
     @Override
@@ -91,25 +86,46 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
     }
 
     private void insertProduct() {
-
-        Uri imageUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
-                "://" + getResources().getResourcePackageName(R.drawable.default_iphone)
-                + '/' + getResources().getResourceTypeName(R.drawable.default_iphone) + '/' + getResources().getResourceEntryName(R.drawable.default_iphone) );
-
-        // Create a ContentValues object where column names are the keys,
-        // and example's product attributes are the values.
-        ContentValues values = new ContentValues();
-        values.put(ProductEntry.COLUMN_PRODUCT_NAME, "Apple iphone 11");
-        values.put(ProductEntry.COLUMN_PRODUCT_CONDITION, ProductEntry.CONDITION_NEW);
-        values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, 5);
-        values.put(ProductEntry.COLUMN_PRODUCT_PICTURE, String.valueOf(imageUri));
-        values.put(ProductEntry.COLUMN_SUPPLIER_NAME, "Tanuj Mehta");
-        values.put(ProductEntry.COLUMN_SUPPLIER_EMAIL, "tanuj@apple.com");
-        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, 85000);
-
-        Uri newUri = getContentResolver().insert(ProductEntry.CONTENT_URI, values);
+        Uri imageUri = getUriToDrawable(this,R.drawable.default_iphone);
+        String productName = "Apple iphone 11";
+        int productCondition = 1;
+        int productQuantity = 4;
+        String supplierName = "Tanuj Mehta";
+        String supplierEmail= "tanuj@gmail.com";
+        String productPrice = "85000";
+        ProductEntry productEntry = new ProductEntry(productName,productCondition,productPrice,
+                supplierName,supplierEmail,imageUri.toString(),productQuantity);
+        productViewModel.insert(productEntry);
     }
 
+    public static Uri getUriToDrawable(@NonNull Context context,
+                                       @AnyRes int drawableId) {
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE +
+                "://" + context.getResources().getResourcePackageName(drawableId)
+                + '/' + context.getResources().getResourceTypeName(drawableId)
+                + '/' + context.getResources().getResourceEntryName(drawableId));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==Constant.ADD_REQUEST_CODE && resultCode==RESULT_OK) {
+            productViewModel.insert(data.getParcelableExtra(Constant.INTENT_EXTRA));
+            Toast.makeText(CatalogActivity.this,"Product Added Successfully",Toast.LENGTH_SHORT).show();
+        } else if(requestCode==Constant.EDIT_REQUEST_CODE && resultCode==RESULT_OK) {
+            if(data.hasExtra(Constant.DELETE_INTENT_EXTRA)) {
+                ProductEntry entry = data.getParcelableExtra(Constant.DELETE_INTENT_EXTRA);
+                productViewModel.delete(entry);
+                Toast.makeText(CatalogActivity.this,"Product Deleted Successfully",Toast.LENGTH_SHORT).show();
+            } else {
+                productViewModel.update(data.getParcelableExtra(Constant.INTENT_EXTRA));
+                Toast.makeText(CatalogActivity.this, "Product Saved Successfully", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // User clicked on a menu option in the app bar overflow menu
@@ -117,7 +133,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             // Respond to a click on the "Insert dummy data" menu option
             case R.id.insert_dummy_node:
                 insertProduct();
-                ;
                 return true;
             // Respond to a click on the "Delete all entries" menu option
             case R.id.delete_all:
@@ -125,59 +140,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
                 return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @NonNull
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, @Nullable Bundle args) {
-        // Define a projection that specifies the columns from the table we care about
-        String[] projection = {
-                ProductEntry._ID,
-                ProductEntry.COLUMN_PRODUCT_NAME,
-                ProductEntry.COLUMN_PRODUCT_QUANTITY,
-                ProductEntry.COLUMN_PRODUCT_PRICE,
-                ProductEntry.COLUMN_PRODUCT_CONDITION,
-                ProductEntry.COLUMN_PRODUCT_PICTURE
-        };
-
-        // This loader will execute the ContentProvider's query method ona background thread
-        return new CursorLoader(this,
-                ProductEntry.CONTENT_URI,
-                projection,
-                null,
-                null,
-                null
-        );
-
-    }
-
-    @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        // Update {@link ProductCursorAdapter} with this new cursor containing updated product data
-        mCursorAdapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(@NonNull Loader<Cursor> loader) {
-        mCursorAdapter.swapCursor(null);
-    }
-
-    /**
-     * Method to delete all products in the database.
-     */
-    private void deleteAllProducts() {
-        if (ProductEntry.CONTENT_URI != null) {
-            int rowsDeleted = getContentResolver().delete(ProductEntry.CONTENT_URI, null, null);
-
-            if (rowsDeleted == 0) {
-                // Toast message if no entries found
-                Toast.makeText(this, "No products to delete", Toast.LENGTH_SHORT).show();
-            } else {
-                // Toast message if all entries are deleted
-                Toast.makeText(this, "All Products deleted", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     /**
@@ -189,7 +151,12 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                deleteAllProducts();
+                if(productList.isEmpty()) {
+                    Toast.makeText(CatalogActivity.this, "No products to delete", Toast.LENGTH_SHORT).show();
+                } else {
+                    productViewModel.deleteAll();
+                    Toast.makeText(CatalogActivity.this, "All Products deleted", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -202,6 +169,31 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onItemClick(View v, com.example.inventoryapp.Data.ProductEntry productEntry) {
+        Intent intent = new Intent(CatalogActivity.this, EditorActivity.class);
+        intent.putExtra(Constant.INTENT_EXTRA,productEntry);
+        startActivityForResult(intent,Constant.EDIT_REQUEST_CODE);
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+    }
+
+    @Override
+    public void onSaleClick(View v, ProductEntry productEntry) {
+        int quantity = productEntry.getProductQuantity();
+        int productId = productEntry.getId();
+        adjustProductQuantity(quantity,productId);
+    }
+
+    private void adjustProductQuantity(int currentQuantityInStock,int productId) {
+        if (currentQuantityInStock == 0) {
+            Toast.makeText(CatalogActivity.this, "Product is out of stock!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Subtract 1 if product quantity is greater than 0 otherwise assign 0
+        int newQuantityValue = (currentQuantityInStock >= 1) ? currentQuantityInStock - 1 : 0;
+        productViewModel.updateQuantity(newQuantityValue,productId);
     }
 
 }

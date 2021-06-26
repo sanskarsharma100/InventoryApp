@@ -1,138 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:descendantFocusability="blocksDescendants"
-    android:orientation="horizontal"
-    android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/product_image"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"/>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="3"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:orientation="vertical">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:descendantFocusability="blocksDescendants"
+        android:orientation="horizontal"
+        android:padding="10dp">
+
+        <ImageView
+            android:id="@+id/product_image"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="@string/product_image_content_description" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            tools:ignore="NestedWeights">
-
-            <TextView
-                android:id="@+id/product_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/item_name_list"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/black"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_weight="3"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
                 android:layout_weight="1"
-                android:orientation="horizontal"
                 tools:ignore="NestedWeights">
 
                 <TextView
+                    android:id="@+id/product_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/circular_bracket_open"
+                    android:text="@string/item_name_list"
                     android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/gray_color"
+                    android:textColor="@color/black"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/product_condition"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="@string/condition_list"
-                    android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/gray_color"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:layout_weight="1"
+                    android:orientation="horizontal"
+                    tools:ignore="NestedWeights">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/circular_bracket_open"
+                        android:textAppearance="?android:textAppearanceMedium"
+                        android:textColor="@color/gray_color"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/product_condition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/condition_list"
+                        android:textAppearance="?android:textAppearanceMedium"
+                        android:textColor="@color/gray_color"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/circular_bracket_closed"
+                        android:textAppearance="?android:textAppearanceMedium"
+                        android:textColor="@color/gray_color"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
 
                 <TextView
+                    android:id="@+id/product_quantity_number"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/circular_bracket_closed"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/quntity_hint_value_list"
+                    android:textStyle="italic" />
+
+                <TextView
+                    android:id="@+id/quantity_unit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/pcs_list"
+                    android:textStyle="italic" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/product_price"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:inputType="numberDecimal"
+                    android:text="@string/price_list"
                     android:textAppearance="?android:textAppearanceMedium"
-                    android:textColor="@color/gray_color"
-                    android:textSize="15sp"
+                    android:textColor="@color/price_color"
+                    android:textStyle="bold"
+                    tools:ignore="TextViewEdits" />
+
+                <TextView
+                    android:id="@+id/rupee_sign"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:fontFamily="sans-serif"
+                    android:text="@string/rupees_list"
+                    android:textAppearance="?android:textAppearanceMedium"
+                    android:textColor="@color/price_color"
                     android:textStyle="bold" />
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/product_quantity_number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textStyle="italic"
-                android:text="@string/quntity_hint_value_list" />
-
-            <TextView
-                android:id="@+id/quantity_unit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:textStyle="italic"
-                android:text="@string/pcs_list" />
-
-
         </LinearLayout>
 
-        <LinearLayout
+        <ImageButton
+            android:id="@+id/product_buy_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/product_price"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif"
-                android:inputType="numberDecimal"
-                android:text="@string/price_list"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/price_color"
-                android:textStyle="bold"
-                tools:ignore="TextViewEdits" />
-
-            <TextView
-                android:id="@+id/rupee_sign"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:fontFamily="sans-serif"
-                android:text="@string/rupees_list"
-                android:textAppearance="?android:textAppearanceMedium"
-                android:textColor="@color/price_color"
-                android:textStyle="bold" />
-
-        </LinearLayout>
+            android:layout_gravity="center"
+            android:contentDescription="@string/content_description_shopping_button"
+            android:focusableInTouchMode="true"
+            android:minWidth="60dp"
+            android:src="@drawable/ic_shop" />
 
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/product_buy_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:focusableInTouchMode="true"
-        android:minWidth="60dp"
-        android:src="@drawable/ic_shop"
-        android:contentDescription="@string/content_description_shopping_button" />
-
-</LinearLayout>
+</layout>

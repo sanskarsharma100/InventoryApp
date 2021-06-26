@@ -35,13 +35,6 @@
                 android:value=".CatalogActivity" />
         </activity>
 
-        <provider
-            android:name="com.example.inventoryapp.Data.ProductProvider"
-            android:authorities="com.example.inventoryapp"
-            android:exported="true"
-            android:readPermission="com.example.inventoryapp.READ_DATABASE"
-            android:writePermission="com.example.inventoryapp.WRITE_DATABASE"/>
-
     </application>
 
 </manifest>

@@ -38,4 +38,7 @@
     <string name="tap_to_add_photo">Tap to add photo</string>
     <string name="photo_editor">Photo</string>
     <string name="image_of_the_product">Image of the product</string>
+    <string name="add_new_photo_text">Tap to add photo</string>
+    <string name="change_photo_text">Tap to change photo</string>
+    <string name="product_image_content_description">Product Image</string>
 </resources>
